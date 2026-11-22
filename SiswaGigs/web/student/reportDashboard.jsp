@@ -11,7 +11,9 @@
     }
 
     String fullName = (String) session.getAttribute("fullName");
-    if (fullName == null) fullName = "User";
+    String matricNumber = (String) session.getAttribute("matricNumber");
+    if (fullName == null || fullName.isEmpty()) fullName = "Student";
+    if (matricNumber == null) matricNumber = "-";
 
     double totalGross = (Double) request.getAttribute("totalGross");
     double totalFees = (Double) request.getAttribute("totalFees");
@@ -51,7 +53,23 @@
                 <div class="text-muted small">Work & Payment Module</div>
                 <div class="fw-bold fs-5">Analytics & Reports</div>
             </div>
-            <div class="fw-semibold text-muted"><i class="bi bi-person-circle me-1"></i> <%= fullName %></div>
+            
+            <!-- Top-Right User Profile & Logout Dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-light border btn-sm rounded-pill px-3 py-2 dropdown-toggle fw-semibold d-inline-flex align-items-center gap-2 shadow-sm bg-white" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="user-avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.8rem;">
+                        <%= fullName.substring(0, 1).toUpperCase() %>
+                    </span>
+                    <span class="text-uppercase" style="font-size: 0.85rem;"><%= fullName %></span>
+                    <i class="bi bi-chevron-down small text-muted ms-1"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
+                    <li><h6 class="dropdown-header text-muted small"><%= matricNumber %></h6></li>
+                    <li><a class="dropdown-item py-2 fw-medium" href="profile.jsp"><i class="bi bi-person-circle me-2 text-primary"></i> My Profile</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item py-2 fw-semibold text-danger" href="../LogoutServlet"><i class="bi bi-box-arrow-right me-2"></i> Log Out</a></li>
+                </ul>
+            </div>
         </div>
 
         <!-- Hero -->

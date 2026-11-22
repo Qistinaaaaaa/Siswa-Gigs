@@ -3,11 +3,14 @@
 <%@ page import="com.siswagigs.dao.DBConnection" %>
 <%
     Integer userId = (Integer) session.getAttribute("userId");
-    String userName = (String) session.getAttribute("userName");
+    String fullName = (String) session.getAttribute("fullName");
+    String matricNumber = (String) session.getAttribute("matricNumber");
     if (userId == null) {
         response.sendRedirect("../login.jsp");
         return;
     }
+    if (fullName == null || fullName.isEmpty()) fullName = "Student";
+    if (matricNumber == null) matricNumber = "-";
 
     double totalPaid = 0.0;
     double totalPending = 0.0;
@@ -79,9 +82,10 @@
             background-color: #e2e8f0; color: #0f172a;
             display: inline-flex; align-items: center; justify-content: center;
         }
-        .user-name-truncate {
-            max-width: 170px; white-space: nowrap; overflow: hidden;
-            text-overflow: ellipsis; display: inline-block; vertical-align: middle;
+        .user-name-full {
+            white-space: nowrap;
+            display: inline-block;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -95,11 +99,14 @@
             <div class="dropdown">
                 <button class="btn user-dropdown-btn dropdown-toggle d-flex align-items-center gap-2"
                         type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="user-avatar-circle"><i class="bi bi-person-fill"></i></span>
-                    <span class="text-uppercase user-name-truncate"><%= (userName != null) ? userName : "STUDENT" %></span>
+                    <span class="user-avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.8rem;">
+                        <%= fullName.substring(0, 1).toUpperCase() %>
+                    </span>
+                    <span class="text-uppercase user-name-full"><%= fullName %></span>
                     <i class="bi bi-chevron-down small text-muted ms-1"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2" aria-labelledby="userMenuDropdown">
+                    <li><h6 class="dropdown-header text-muted small"><%= matricNumber %></h6></li>
                     <li><a class="dropdown-item py-2 fw-medium" href="profile.jsp"><i class="bi bi-person-circle me-2 text-primary"></i> My Profile</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item py-2 fw-semibold text-danger" href="../LogoutServlet"><i class="bi bi-box-arrow-right me-2"></i> Log Out</a></li>

@@ -3,7 +3,8 @@
 <%@ page import="com.siswagigs.dao.DBConnection" %>
 <%
     Integer userId = (Integer) session.getAttribute("userId");
-    String userName = (String) session.getAttribute("userName");
+    String fullName = (String) session.getAttribute("fullName");
+    String matricNumber = (String) session.getAttribute("matricNumber");
     if (userId == null) {
         response.sendRedirect("../login.jsp");
         return;
@@ -47,9 +48,10 @@
             background-color: #e2e8f0; color: #0f172a;
             display: inline-flex; align-items: center; justify-content: center;
         }
-        .user-name-truncate {
-            max-width: 170px; white-space: nowrap; overflow: hidden;
-            text-overflow: ellipsis; display: inline-block; vertical-align: middle;
+        .user-name-full {
+            white-space: nowrap;
+            display: inline-block;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -58,8 +60,8 @@
     <%@ include file="sidebar.jsp" %>
 
     <div class="main-content">
-        <!-- Top-Right Profile Dropdown -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- Top-Right Profile Dropdown & Header Row -->
+        <div class="d-flex justify-content-between align-items-start mb-4">
             <div>
                 <h3 class="fw-bold text-dark mb-1">Wage Calculator</h3>
                 <p class="text-muted mb-0">Compute gross and net wages from logged shift records and proceed to payment.</p>
@@ -67,11 +69,14 @@
             <div class="dropdown">
                 <button class="btn user-dropdown-btn dropdown-toggle d-flex align-items-center gap-2"
                         type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="user-avatar-circle"><i class="bi bi-person-fill"></i></span>
-                    <span class="text-uppercase user-name-truncate"><%= (userName != null) ? userName : "STUDENT" %></span>
+                    <span class="user-avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.8rem;">
+                        <%= (fullName != null && !fullName.isEmpty()) ? fullName.substring(0, 1).toUpperCase() : "S" %>
+                    </span>
+                    <span class="text-uppercase user-name-full"><%= (fullName != null) ? fullName : "Student" %></span>
                     <i class="bi bi-chevron-down small text-muted ms-1"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2" aria-labelledby="userMenuDropdown">
+                    <li><h6 class="dropdown-header text-muted small"><%= (matricNumber != null) ? matricNumber : "-" %></h6></li>
                     <li><a class="dropdown-item py-2 fw-medium" href="profile.jsp"><i class="bi bi-person-circle me-2 text-primary"></i> My Profile</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item py-2 fw-semibold text-danger" href="../LogoutServlet"><i class="bi bi-box-arrow-right me-2"></i> Log Out</a></li>
