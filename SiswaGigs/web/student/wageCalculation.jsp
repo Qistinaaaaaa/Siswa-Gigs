@@ -1,181 +1,205 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.sql.*, java.util.*, com.siswagigs.dao.DBConnection" %>
+<%@ page import="java.sql.*" %>
+<%@ page import="com.siswagigs.util.DBConnection" %>
 <%
     Integer userId = (Integer) session.getAttribute("userId");
+    String userName = (String) session.getAttribute("userName");
     if (userId == null) {
-        response.sendRedirect("login.jsp?error=unauthorized");
+        response.sendRedirect("../login.jsp");
         return;
     }
 
-    String fullName = (String) session.getAttribute("fullName");
-    if (fullName == null) fullName = "User";
-
-    // {record_id, student_name, job_title, work_date, hours_worked, hourly_rate}
-    List<String[]> approvedRecords = new ArrayList<String[]>();
-
-    try (Connection conn = DBConnection.getConnection()) {
-        String sql = "SELECT wr.record_id, u.full_name, j.job_title, wr.work_date, wr.hours_worked, wr.hourly_rate " +
-                     "FROM work_records wr " +
-                     "JOIN applications a ON wr.application_id = a.application_id " +
-                     "JOIN students s ON a.student_id = s.student_id " +
-                     "JOIN users u ON s.user_id = u.user_id " +
-                     "JOIN jobs j ON a.job_id = j.job_id " +
-                     "LEFT JOIN payments p ON p.record_id = wr.record_id " +
-                     "WHERE wr.work_status = 'Approved' AND p.payment_id IS NULL " +
-                     "ORDER BY wr.work_date DESC";
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                approvedRecords.add(new String[]{
-                    rs.getString("record_id"),
-                    rs.getString("full_name"),
-                    rs.getString("job_title"),
-                    rs.getString("work_date"),
-                    rs.getString("hours_worked"),
-                    rs.getString("hourly_rate")
-                });
-            }
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-
-    String error = request.getParameter("error");
+    Double calcTotalHours = (Double) request.getAttribute("totalHours");
+    Double calcGrossWage = (Double) request.getAttribute("grossWage");
+    Double calcBonus = (Double) request.getAttribute("bonus");
+    Double calcDeduction = (Double) request.getAttribute("deduction");
+    Double calcNetWage = (Double) request.getAttribute("netWage");
+    String selectedJobTitle = (String) request.getAttribute("jobTitle");
+    Integer selectedAppId = (Integer) request.getAttribute("applicationId");
 %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wage Calculation | Siswa-Gigs</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-        body { background-color: #f8fafc; font-family: 'Inter', 'Segoe UI', sans-serif; color: #0f172a; }
-        .sidebar { width: 260px; height: 100vh; position: fixed; top: 0; left: 0; background-color: #0f172a; color: #fff; z-index: 100; }
-        .main-content { margin-left: 260px; padding: 2.5rem; }
-        @media (max-width: 991px) { .main-content { margin-left: 0; padding: 1.25rem; } }
-        .hero { background: #16213a; color: #fff; border-radius: 1.5rem; padding: 2rem 2.25rem; }
-        .panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 1.75rem; }
-        .form-label { font-weight: 600; font-size: .85rem; color: #334155; }
+        body { background-color: #f8fafc; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .sidebar { width: 260px; min-height: 100vh; background-color: #0f172a; }
+        .main-content { flex: 1; padding: 2rem; }
+        .card { border: none; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+        .summary-box { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; border-radius: 14px; }
+        .user-dropdown-btn {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 0.5rem 1.1rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #1e293b;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+        }
+        .user-dropdown-btn::after { display: none; }
+        .user-avatar-circle {
+            width: 30px; height: 30px; border-radius: 50%;
+            background-color: #e2e8f0; color: #0f172a;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .user-name-truncate {
+            max-width: 170px; white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis; display: inline-block; vertical-align: middle;
+        }
     </style>
 </head>
-<body onload="onRecordChange()">
-
-    <jsp:include page="sidebar.jsp" />
+<body>
+<div class="d-flex">
+    <%@ include file="sidebar.jsp" %>
 
     <div class="main-content">
-        <!-- Top bar -->
+        <!-- Top-Right Profile Dropdown -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <div class="text-muted small">Work & Payment Module</div>
-                <div class="fw-bold fs-5">Wage Calculation</div>
+                <h3 class="fw-bold text-dark mb-1">Wage Calculator</h3>
+                <p class="text-muted mb-0">Compute gross and net wages from logged shift records and proceed to payment.</p>
             </div>
-            <div class="fw-semibold text-muted"><i class="bi bi-person-circle me-1"></i> <%= fullName %></div>
+            <div class="dropdown">
+                <button class="btn user-dropdown-btn dropdown-toggle d-flex align-items-center gap-2"
+                        type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="user-avatar-circle"><i class="bi bi-person-fill"></i></span>
+                    <span class="text-uppercase user-name-truncate"><%= (userName != null) ? userName : "STUDENT" %></span>
+                    <i class="bi bi-chevron-down small text-muted ms-1"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2" aria-labelledby="userMenuDropdown">
+                    <li><a class="dropdown-item py-2 fw-medium" href="profile.jsp"><i class="bi bi-person-circle me-2 text-primary"></i> My Profile</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item py-2 fw-semibold text-danger" href="../LogoutServlet"><i class="bi bi-box-arrow-right me-2"></i> Log Out</a></li>
+                </ul>
+            </div>
         </div>
 
-        <div class="hero mb-4">
-            <h1 class="fs-3 fw-bold mb-1">Wage & Deduction Calculation</h1>
-            <p class="text-light opacity-75 mb-0">Calculate gross wage (Hours × Hourly Rate), deduct processing fee, and generate payment records.</p>
-        </div>
+        <div class="row g-4">
+            <!-- Left Column: Wage Calculation Form -->
+            <div class="col-lg-6">
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-calculator text-primary me-2"></i>Calculate Gig Earnings</h5>
+                    <form action="WageCalculationServlet" method="POST">
+                        <input type="hidden" name="action" value="calculate">
 
-        <% if (error != null) { %>
-            <div class="alert alert-danger rounded-4 mb-4">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <%= "not_approved".equals(error) ? "Only approved work records can be calculated." :
-                    "already_exists".equals(error) ? "A payment record already exists for this shift." :
-                    "missing_fields".equals(error) ? "Please fill in all fields." : error %>
-            </div>
-        <% } %>
-
-        <div class="panel">
-            <h2 class="fs-5 fw-bold mb-3">Generate Payable Record</h2>
-
-            <% if (approvedRecords.isEmpty()) { %>
-                <div class="text-center py-5 text-muted">
-                    <i class="bi bi-check2-circle fs-1 d-block mb-2"></i>
-                    <div class="fw-semibold text-dark">No approved shifts awaiting calculation</div>
-                    <div class="small mb-3">All approved work records already have payments generated.</div>
-                    <a href="payment.jsp" class="btn btn-primary rounded-pill px-4 fw-semibold">View Payments</a>
-                </div>
-            <% } else { %>
-                <form action="PaymentServlet" method="POST">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label">Select Approved Work Record</label>
-                            <select name="recordId" id="recordId" class="form-select" onchange="onRecordChange()" required>
-                                <% for (String[] r : approvedRecords) { %>
-                                    <option value="<%= r[0] %>" data-hours="<%= r[4] %>" data-rate="<%= r[5] %>">
-                                        #<%= r[0] %> — <%= r[1] %> | <%= r[2] %> (<%= r[3] %>)
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Select Gig Application</label>
+                            <select name="applicationId" id="applicationSelect" class="form-select" required>
+                                <option value="" disabled selected>-- Choose Gig --</option>
+                                <%
+                                    Connection conn = null;
+                                    PreparedStatement ps = null;
+                                    ResultSet rs = null;
+                                    try {
+                                        conn = DBConnection.getConnection();
+                                        String sql = "SELECT a.application_id, j.title, j.hourly_rate, " +
+                                                     "COALESCE(SUM(w.hours_worked), 0) AS total_hrs " +
+                                                     "FROM applications a " +
+                                                     "JOIN jobs j ON a.job_id = j.job_id " +
+                                                     "LEFT JOIN work_records w ON a.application_id = w.application_id " +
+                                                     "WHERE a.user_id = ? AND a.status = 'Approved' " +
+                                                     "GROUP BY a.application_id, j.title, j.hourly_rate";
+                                        ps = conn.prepareStatement(sql);
+                                        ps.setInt(1, userId);
+                                        rs = ps.executeQuery();
+                                        while (rs.next()) {
+                                            int appId = rs.getInt("application_id");
+                                            String title = rs.getString("title");
+                                            double rate = rs.getDouble("hourly_rate");
+                                            double hrs = rs.getDouble("total_hrs");
+                                            boolean isSelected = (selectedAppId != null && selectedAppId.intValue() == appId);
+                                %>
+                                    <option value="<%= appId %>" <%= isSelected ? "selected" : "" %>>
+                                        <%= title %> — <%= String.format("%.1f", hrs) %> hrs @ RM <%= String.format("%.2f", rate) %>/hr
                                     </option>
-                                <% } %>
+                                <%
+                                        }
+                                    } catch (Exception e) {
+                                        out.println("<option disabled>Error: " + e.getMessage() + "</option>");
+                                    } finally {
+                                        if (rs != null) { try { rs.close(); } catch (Exception ignored) {} }
+                                        if (ps != null) { try { ps.close(); } catch (Exception ignored) {} }
+                                        if (conn != null) { try { conn.close(); } catch (Exception ignored) {} }
+                                    }
+                                %>
                             </select>
                         </div>
 
-                        <div class="col-md-4">
-                            <label class="form-label">Hours Worked</label>
-                            <input type="text" id="hoursWorked" class="form-control bg-light" readonly>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label">Hourly Rate (RM)</label>
-                            <input type="text" id="hourlyRate" class="form-control bg-light" readonly>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label">Platform Processing Fee (RM)</label>
-                            <input type="number" step="0.01" min="0" name="processingFee" id="processingFee" value="5.00" class="form-control" oninput="recalculate()" required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="p-3 rounded-4 bg-light border">
-                                <div class="small text-muted">Gross Wage (Hours × Hourly Rate)</div>
-                                <div class="fs-4 fw-bold" id="grossDisplay">RM 0.00</div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Performance Bonus (RM)</label>
+                                <input type="number" step="0.01" min="0" name="bonus" class="form-control"
+                                       value="<%= (calcBonus != null) ? String.format("%.2f", calcBonus) : "0.00" %>">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Deductions / Platform Fee (RM)</label>
+                                <input type="number" step="0.01" min="0" name="deduction" class="form-control"
+                                       value="<%= (calcDeduction != null) ? String.format("%.2f", calcDeduction) : "0.00" %>">
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="p-3 rounded-4 border" style="background:#dcfce7; border-color:#86efac !important;">
-                                <div class="small text-success fw-semibold">Net Payable (Gross Wage − Fee)</div>
-                                <div class="fs-4 fw-bold text-success" id="netDisplay">RM 0.00</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold">
-                            <i class="bi bi-calculator me-1"></i> Save Payment Record
+                        <button type="submit" class="btn btn-primary w-100 fw-semibold">
+                            <i class="bi bi-lightning-charge-fill me-1"></i> Compute Net Wage
                         </button>
-                        <a href="payment.jsp" class="btn btn-outline-secondary rounded-pill px-4 py-2">View Payments</a>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Column: Wage Breakdown Card -->
+            <div class="col-lg-6">
+                <div class="summary-box p-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-uppercase small fw-bold text-info">Wage Breakdown Statement</span>
+                            <i class="bi bi-receipt fs-4 text-info"></i>
+                        </div>
+
+                        <h5 class="fw-bold mb-4">
+                            <%= (selectedJobTitle != null) ? selectedJobTitle : "Select a gig to preview earnings" %>
+                        </h5>
+
+                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary">
+                            <span class="text-light opacity-75">Total Logged Hours</span>
+                            <span class="fw-semibold"><%= (calcTotalHours != null) ? String.format("%.1f hrs", calcTotalHours) : "0.0 hrs" %></span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary">
+                            <span class="text-light opacity-75">Gross Wage</span>
+                            <span class="fw-semibold">RM <%= (calcGrossWage != null) ? String.format("%.2f", calcGrossWage) : "0.00" %></span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary">
+                            <span class="text-light opacity-75">Bonus (+)</span>
+                            <span class="text-success fw-semibold">+ RM <%= (calcBonus != null) ? String.format("%.2f", calcBonus) : "0.00" %></span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary">
+                            <span class="text-light opacity-75">Deductions (-)</span>
+                            <span class="text-danger fw-semibold">- RM <%= (calcDeduction != null) ? String.format("%.2f", calcDeduction) : "0.00" %></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-3 mt-2">
+                            <span class="fs-5 fw-bold">Net Payable Wage</span>
+                            <span class="fs-3 fw-bold text-info">RM <%= (calcNetWage != null) ? String.format("%.2f", calcNetWage) : "0.00" %></span>
+                        </div>
                     </div>
-                </form>
-            <% } %>
+
+                    <% if (calcNetWage != null && calcNetWage.doubleValue() > 0 && selectedAppId != null) { %>
+                    <form action="PaymentServlet" method="POST" class="mt-4">
+                        <input type="hidden" name="action" value="createPayment">
+                        <input type="hidden" name="applicationId" value="<%= selectedAppId %>">
+                        <input type="hidden" name="amount" value="<%= String.format("%.2f", calcNetWage) %>">
+                        <button type="submit" class="btn btn-info text-dark fw-bold w-100">
+                            <i class="bi bi-cash-coin me-1"></i> Proceed to Payment Record
+                        </button>
+                    </form>
+                    <% } %>
+                </div>
+            </div>
         </div>
     </div>
-
-    <script>
-        function onRecordChange() {
-            var sel = document.getElementById("recordId");
-            if (!sel || sel.options.length === 0) return;
-            var opt = sel.options[sel.selectedIndex];
-            document.getElementById("hoursWorked").value = opt.getAttribute("data-hours");
-            document.getElementById("hourlyRate").value = opt.getAttribute("data-rate");
-            recalculate();
-        }
-
-        function recalculate() {
-            var hrs = parseFloat(document.getElementById("hoursWorked").value) || 0;
-            var rate = parseFloat(document.getElementById("hourlyRate").value) || 0;
-            var fee = parseFloat(document.getElementById("processingFee").value) || 0;
-
-            var gross = hrs * rate;
-            var net = Math.max(0, gross - fee);
-
-            document.getElementById("grossDisplay").textContent = "RM " + gross.toFixed(2);
-            document.getElementById("netDisplay").textContent = "RM " + net.toFixed(2);
-        }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
