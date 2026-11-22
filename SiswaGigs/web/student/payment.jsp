@@ -40,8 +40,8 @@
     } catch (Exception e) {
         // Handled cleanly in table below
     } finally {
-        if (rsSummary != null) try { rsSummary.close(); } catch (Exception ignored) {}
-        if (psSummary != null) try { psSummary.close(); } catch (Exception ignored) {}
+        if (rsSummary != null) { try { rsSummary.close(); } catch (Exception ignored) {} }
+        if (psSummary != null) { try { psSummary.close(); } catch (Exception ignored) {} }
     }
 %>
 <!DOCTYPE html>
@@ -72,74 +72,42 @@
             font-size: 0.875rem;
             color: #1e293b;
             box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-            transition: all 0.2s ease;
         }
-        .user-dropdown-btn:hover, .user-dropdown-btn:focus {
-            background-color: #f8fafc;
-            border-color: #cbd5e1;
-            color: #0f172a;
-        }
-        .user-dropdown-btn::after {
-            display: none;
-        }
+        .user-dropdown-btn::after { display: none; }
         .user-avatar-circle {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background-color: #e2e8f0;
-            color: #0f172a;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
+            width: 30px; height: 30px; border-radius: 50%;
+            background-color: #e2e8f0; color: #0f172a;
+            display: inline-flex; align-items: center; justify-content: center;
         }
         .user-name-truncate {
-            max-width: 170px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: inline-block;
-            vertical-align: middle;
+            max-width: 170px; white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis; display: inline-block; vertical-align: middle;
         }
     </style>
 </head>
 <body>
 <div class="d-flex">
-    <!-- Shared Sidebar -->
     <%@ include file="sidebar.jsp" %>
 
-    <!-- Main Content -->
     <div class="main-content">
         <!-- Top-Right User Profile & Logout Dropdown -->
         <div class="d-flex justify-content-end align-items-center mb-3">
             <div class="dropdown">
                 <button class="btn user-dropdown-btn dropdown-toggle d-flex align-items-center gap-2"
                         type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="user-avatar-circle">
-                        <i class="bi bi-person-fill"></i>
-                    </span>
-                    <span class="text-uppercase user-name-truncate">
-                        <%= (userName != null) ? userName : "STUDENT" %>
-                    </span>
+                    <span class="user-avatar-circle"><i class="bi bi-person-fill"></i></span>
+                    <span class="text-uppercase user-name-truncate"><%= (userName != null) ? userName : "STUDENT" %></span>
                     <i class="bi bi-chevron-down small text-muted ms-1"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2" aria-labelledby="userMenuDropdown">
-                    <li>
-                        <a class="dropdown-item py-2 fw-medium" href="profile.jsp">
-                            <i class="bi bi-person-circle me-2 text-primary"></i> My Profile
-                        </a>
-                    </li>
+                    <li><a class="dropdown-item py-2 fw-medium" href="profile.jsp"><i class="bi bi-person-circle me-2 text-primary"></i> My Profile</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a class="dropdown-item py-2 fw-semibold text-danger" href="../LogoutServlet">
-                            <i class="bi bi-box-arrow-right me-2"></i> Log Out
-                        </a>
-                    </li>
+                    <li><a class="dropdown-item py-2 fw-semibold text-danger" href="../LogoutServlet"><i class="bi bi-box-arrow-right me-2"></i> Log Out</a></li>
                 </ul>
             </div>
         </div>
 
-        <!-- Dark Navy Header Banner -->
+        
         <div class="header-banner shadow-sm mb-4">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <div>
@@ -152,7 +120,7 @@
             </div>
         </div>
 
-        <!-- Status Alert -->
+      
         <% String msg = request.getParameter("msg");
            if ("created".equals(msg)) { %>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -166,7 +134,7 @@
             </div>
         <% } %>
 
-        <!-- Top KPI Summary Cards -->
+       
         <div class="row g-3 mb-4">
             <div class="col-md-4">
                 <div class="card p-4 border-start border-success border-4">
@@ -239,8 +207,8 @@
                                     } catch (Exception e) {
                                         out.println("<option disabled>Error: " + e.getMessage() + "</option>");
                                     } finally {
-                                        if (rsApps != null) try { rsApps.close(); } catch (Exception ignored) {}
-                                        if (psApps != null) try { psApps.close(); } catch (Exception ignored) {}
+                                        if (rsApps != null) { try { rsApps.close(); } catch (Exception ignored) {} }
+                                        if (psApps != null) { try { psApps.close(); } catch (Exception ignored) {} }
                                     }
                                 %>
                             </select>
@@ -267,7 +235,7 @@
                 </div>
             </div>
 
-            <!-- Right Column: Payment History Table -->
+           
             <div class="col-lg-8">
                 <div class="card p-4">
                     <h5 class="fw-bold mb-3"><i class="bi bi-clock-history text-primary me-2"></i>Payment Transaction History</h5>
@@ -339,9 +307,9 @@
                                     } catch (Exception e) {
                                         out.println("<tr><td colspan='7' class='text-danger'>Error: " + e.getMessage() + "</td></tr>");
                                     } finally {
-                                        if (rsPay != null) try { rsPay.close(); } catch (Exception ignored) {}
-                                        if (psPay != null) try { psPay.close(); } catch (Exception ignored) {}
-                                        if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                                        if (rsPay != null) { try { rsPay.close(); } catch (Exception ignored) {} }
+                                        if (psPay != null) { try { psPay.close(); } catch (Exception ignored) {} }
+                                        if (conn != null) { try { conn.close(); } catch (Exception ignored) {} }
                                     }
                                     if (!hasPayments) {
                                 %>
