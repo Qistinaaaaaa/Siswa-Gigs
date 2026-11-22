@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.sql.*" %>
-<%@ page import="com.siswagigs.util.DBConnection" %>
+<%@ page import="com.siswagigs.dao.DBConnection" %>
 <%
     Integer userId = (Integer) session.getAttribute("userId");
     String userName = (String) session.getAttribute("userName");
