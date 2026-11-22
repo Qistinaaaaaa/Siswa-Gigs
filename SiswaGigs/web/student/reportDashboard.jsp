@@ -20,7 +20,7 @@
     List<String[]> peakHiring = (List<String[]>) request.getAttribute("peakHiring");
     List<String[]> demandedSkills = (List<String[]>) request.getAttribute("demandedSkills");
 %>
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
