@@ -1,4 +1,3 @@
-
 <%-- 
     Document   : sidebar
     Created on : Nov 21, 2026, 2:33:38 PM
@@ -16,6 +15,26 @@
             currentUri.contains("JobServlet") ||
             currentUri.contains("jobList.jsp") ||
             currentUri.contains("jobDetails.jsp");
+
+    boolean isWorkRecords =
+            currentServlet.contains("WorkRecordServlet") ||
+            currentUri.contains("WorkRecordServlet") ||
+            currentUri.contains("workRecord.jsp");
+
+    boolean isWageCalculation =
+            currentServlet.contains("WageCalculationServlet") ||
+            currentUri.contains("WageCalculationServlet") ||
+            currentUri.contains("wageCalculation.jsp");
+
+    boolean isPayments =
+            currentServlet.contains("PaymentServlet") ||
+            currentUri.contains("PaymentServlet") ||
+            currentUri.contains("payment.jsp");
+
+    boolean isReports =
+            currentServlet.contains("ReportServlet") ||
+            currentUri.contains("ReportServlet") ||
+            currentUri.contains("reportDashboard.jsp");
 %>
 
 <div class="sidebar p-4 d-flex flex-column justify-content-between">
@@ -79,8 +98,32 @@
             <!-- Work Records -->
             <li class="nav-item">
                 <a href="workRecord.jsp"
-                   class="nav-link text-white <%= currentUri.contains("workRecord.jsp") ? "active bg-primary" : "link-light" %>">
+                   class="nav-link text-white <%= isWorkRecords ? "active bg-primary" : "link-light" %>">
                     <i class="bi bi-clock-history me-2"></i> Work Records
+                </a>
+            </li>
+
+            <!-- Wage Calculation -->
+            <li class="nav-item">
+                <a href="WageCalculationServlet"
+                   class="nav-link text-white <%= isWageCalculation ? "active bg-primary" : "link-light" %>">
+                    <i class="bi bi-calculator-fill me-2"></i> Wage Calculation
+                </a>
+            </li>
+
+            <!-- Payments -->
+            <li class="nav-item">
+                <a href="payment.jsp"
+                   class="nav-link text-white <%= isPayments ? "active bg-primary" : "link-light" %>">
+                    <i class="bi bi-cash-coin me-2"></i> Payments
+                </a>
+            </li>
+
+            <!-- Reports & Analytics -->
+            <li class="nav-item">
+                <a href="ReportServlet"
+                   class="nav-link text-white <%= isReports ? "active bg-primary" : "link-light" %>">
+                    <i class="bi bi-bar-chart-line-fill me-2"></i> Reports &amp; Analytics
                 </a>
             </li>
 
