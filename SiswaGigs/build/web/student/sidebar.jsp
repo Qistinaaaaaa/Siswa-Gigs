@@ -5,133 +5,135 @@
 --%>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!-- Sidebar Desktop (Professional Dark Corporate Theme) -->
-<div class="col-md-3 col-lg-2 sidebar d-none d-md-flex flex-column justify-content-between p-4 shadow" style="background-color: #0f172a; min-height: 100vh; border-right: 1px solid #1e293b;">
-    
-    <!-- Bahagian Atas: Logo & Menu Utama -->
+
+<%
+    String currentUri = request.getRequestURI();
+    String currentServlet = request.getServletPath();
+
+    boolean isExploreGigs =
+            currentServlet.contains("JobServlet") ||
+            currentUri.contains("JobServlet") ||
+            currentUri.contains("jobList.jsp") ||
+            currentUri.contains("jobDetails.jsp");
+
+    boolean isWorkRecords =
+            currentServlet.contains("WorkRecordServlet") ||
+            currentUri.contains("WorkRecordServlet") ||
+            currentUri.contains("workRecord.jsp");
+
+    boolean isWageCalculation =
+            currentServlet.contains("WageCalculationServlet") ||
+            currentUri.contains("WageCalculationServlet") ||
+            currentUri.contains("wageCalculation.jsp");
+
+    boolean isPayments =
+            currentServlet.contains("PaymentServlet") ||
+            currentUri.contains("PaymentServlet") ||
+            currentUri.contains("payment.jsp");
+
+    boolean isReports =
+            currentServlet.contains("ReportServlet") ||
+            currentUri.contains("ReportServlet") ||
+            currentUri.contains("reportDashboard.jsp");
+%>
+
+<div class="sidebar p-4 d-flex flex-column justify-content-between">
     <div>
-        <a href="dashboard.jsp" class="text-decoration-none fs-5 fw-bold text-white d-flex align-items-center gap-2 mb-4 px-2">
-            <div class="bg-primary text-white p-2 rounded-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
-                <i class="bi bi-briefcase-fill fs-6"></i>
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-secondary">
+            <div class="bg-primary text-white rounded-3 d-flex align-items-center justify-content-center shadow-sm"
+                 style="width: 38px; height: 38px;">
+                <i class="bi bi-briefcase-fill fs-5"></i>
             </div>
-            <span>Siswa<span class="text-primary">-Gigs</span></span>
-        </a>
-        
-        <div class="text-uppercase text-muted fs-7 fw-bold px-2 mb-2" style="font-size: 0.7rem; letter-spacing: 0.05em;">Menu Utama</div>
-        
-        <ul class="nav flex-column gap-1">
+
+            <div>
+                <h5 class="fw-bold mb-0" style="letter-spacing: -0.5px;">
+                    <span class="text-white">Siswa</span><span class="text-info">-Gigs</span>
+                </h5>
+                <span class="small" style="color: #cbd5e1; font-size: 0.75rem; font-weight: 500;">
+                    Student Portal
+                </span>
+            </div>
+        </div>
+
+        <div class="text-uppercase fw-bold px-2 mb-2"
+             style="font-size: 0.7rem; letter-spacing: 1px; color: #94a3b8;">
+            Main Menu
+        </div>
+
+        <!-- Main Navigation Menu -->
+        <ul class="nav nav-pills flex-column gap-2">
+
+            <!-- Dashboard -->
             <li class="nav-item">
-                <a href="dashboard.jsp" class="nav-link active px-3 py-2.5 fw-medium text-white rounded-2 shadow-sm bg-primary">
-                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                <a href="dashboard.jsp"
+                   class="nav-link text-white <%= currentUri.contains("dashboard.jsp") ? "active bg-primary" : "link-light" %>">
+                    <i class="bi bi-grid-1x2-fill me-2"></i> Dashboard
                 </a>
             </li>
+
+            <!-- Profile -->
             <li class="nav-item">
-                <a href="#" class="nav-link px-3 py-2.5 fw-medium text-secondary rounded-2 nav-hover-custom">
+                <a href="profile.jsp"
+                   class="nav-link text-white <%= currentUri.contains("profile.jsp") ? "active bg-primary" : "link-light" %>">
+                    <i class="bi bi-person-circle me-2"></i> Profile
+                </a>
+            </li>
+
+            <!-- Explore Gigs -->
+            <li class="nav-item">
+                <a href="JobServlet"
+                   class="nav-link text-white <%= isExploreGigs ? "active bg-primary" : "link-light" %>">
                     <i class="bi bi-search me-2"></i> Explore Gigs
                 </a>
             </li>
+
+            <!-- My Applications -->
             <li class="nav-item">
-                <a href="#" class="nav-link px-3 py-2.5 fw-medium text-secondary rounded-2 nav-hover-custom">
-                    <i class="bi bi-file-earmark-text me-2"></i> My Applications
+                <a href="application.jsp"
+                   class="nav-link text-white <%= currentUri.contains("application.jsp") ? "active bg-primary" : "link-light" %>">
+                    <i class="bi bi-file-earmark-text-fill me-2"></i> My Applications
                 </a>
             </li>
+
+            <!-- Work Records -->
             <li class="nav-item">
-                <a href="#" class="nav-link px-3 py-2.5 fw-medium text-secondary rounded-2 nav-hover-custom">
+                <a href="workRecord.jsp"
+                   class="nav-link text-white <%= isWorkRecords ? "active bg-primary" : "link-light" %>">
                     <i class="bi bi-clock-history me-2"></i> Work Records
                 </a>
             </li>
+
+            <!-- Wage Calculation -->
+            <li class="nav-item">
+                <a href="WageCalculationServlet"
+                   class="nav-link text-white <%= isWageCalculation ? "active bg-primary" : "link-light" %>">
+                    <i class="bi bi-calculator-fill me-2"></i> Wage Calculation
+                </a>
+            </li>
+
+            <!-- Payments -->
+            <li class="nav-item">
+                <a href="payment.jsp"
+                   class="nav-link text-white <%= isPayments ? "active bg-primary" : "link-light" %>">
+                    <i class="bi bi-cash-coin me-2"></i> Payments
+                </a>
+            </li>
+
+            <!-- Reports & Analytics -->
+            <li class="nav-item">
+                <a href="ReportServlet"
+                   class="nav-link text-white <%= isReports ? "active bg-primary" : "link-light" %>">
+                    <i class="bi bi-bar-chart-line-fill me-2"></i> Reports &amp; Analytics
+                </a>
+            </li>
+
         </ul>
     </div>
 
-    <!-- Bahagian Bawah: Butang Log Out di Bawah Sekali -->
-    <div class="mt-auto pt-3">
-        <hr class="border-secondary opacity-25 mb-3">
-        <a href="../LogoutServlet" class="nav-link text-danger px-3 py-2.5 fw-medium rounded-2 d-flex align-items-center logout-btn-custom">
-            <i class="bi bi-box-arrow-right me-2 fs-5"></i> Log Out
+    <!-- Logout -->
+    <div class="pt-3 border-top border-secondary">
+        <a href="../LogoutServlet" class="dropdown-item text-danger fw-semibold">
+            <i class="bi bi-box-arrow-right me-2"></i> Log Out
         </a>
     </div>
 </div>
-
-<!-- Mobile Navbar -->
-<nav class="navbar navbar-dark px-4 py-3 d-md-none shadow-sm" style="background-color: #0f172a; border-bottom: 1px solid #1e293b;">
-    <div class="container-fluid p-0">
-        <a href="dashboard.jsp" class="navbar-brand fw-bold text-white d-flex align-items-center gap-2">
-            <div class="bg-primary text-white p-1.5 rounded-2 shadow-sm">
-                <i class="bi bi-briefcase-fill fs-6"></i>
-            </div>
-            <span>Siswa-Gigs</span>
-        </a>
-        <button class="btn text-white border border-secondary rounded-2 px-3 py-1.5 fw-medium" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" style="background-color: #1e293b;">
-            <i class="bi bi-list fs-5 me-1"></i> Menu
-        </button>
-    </div>
-</nav>
-
-<!-- Mobile Offcanvas Sidebar Menu -->
-<div class="offcanvas offcanvas-start text-white border-0 shadow" tabindex="-1" id="mobileSidebar" style="background-color: #0f172a;">
-    <div class="offcanvas-header border-bottom border-secondary">
-        <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center gap-2">
-            <div class="bg-primary text-white p-1.5 rounded-2">
-                <i class="bi bi-briefcase-fill fs-6"></i>
-            </div>
-            Siswa-Gigs
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body p-4 d-flex flex-column justify-content-between">
-        <div>
-            <div class="text-uppercase text-muted fs-7 fw-bold px-2 mb-2" style="font-size: 0.7rem; letter-spacing: 0.05em;">Menu Utama</div>
-            <ul class="nav flex-column gap-1">
-                <li class="nav-item">
-                    <a href="dashboard.jsp" class="nav-link active px-3 py-2.5 fw-medium text-white rounded-2 shadow-sm bg-primary">
-                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link px-3 py-2.5 fw-medium text-secondary rounded-2 nav-hover-custom">
-                        <i class="bi bi-search me-2"></i> Explore Gigs
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link px-3 py-2.5 fw-medium text-secondary rounded-2 nav-hover-custom">
-                        <i class="bi bi-file-earmark-text me-2"></i> My Applications
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link px-3 py-2.5 fw-medium text-secondary rounded-2 nav-hover-custom">
-                        <i class="bi bi-clock-history me-2"></i> Work Records
-                    </a>
-                </li>
-            </ul>
-        </div>
-        
-        <div class="mt-auto pt-3">
-            <hr class="border-secondary opacity-25 mb-3">
-            <a href="../LogoutServlet" class="nav-link text-danger px-3 py-2.5 fw-medium rounded-2 d-flex align-items-center logout-btn-custom">
-                <i class="bi bi-box-arrow-right me-2 fs-5"></i> Log Out
-            </a>
-        </div>
-    </div>
-</div>
-
-<style>
-    /* Kesan warna teks pautan biasa di dalam menu gelap */
-    .sidebar .nav-link:not(.active), .offcanvas .nav-link:not(.active) {
-        color: #94a3b8 !important;
-    }
-    .nav-hover-custom {
-        transition: all 0.2s ease;
-    }
-    .nav-hover-custom:hover {
-        background-color: #1e293b !important;
-        color: #ffffff !important;
-        transform: translateX(3px);
-    }
-    .logout-btn-custom {
-        transition: all 0.2s ease;
-    }
-    .logout-btn-custom:hover {
-        background-color: rgba(239, 68, 68, 0.15) !important;
-        color: #ef4444 !important;
-    }
-</style>

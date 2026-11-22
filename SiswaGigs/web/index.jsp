@@ -1,24 +1,67 @@
-<%-- 
+<%--
     Document   : index
     Created on : Nov 21, 2026, 1:21:16 PM
     Author     : HP
 --%>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.sql.*, java.util.*" %>
+<%!
+    // Escape employer-entered text before printing it into HTML
+    private static String esc(String s) {
+        if (s == null) return "";
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+    }
+%>
+<%
+    // {title, company, location, rate, vacancies, posted, description, skills}
+    List<String[]> gigs = new ArrayList<String[]>();
+
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    java.text.SimpleDateFormat dateFmt = new java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.ENGLISH);
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/siswa_gigs?useSSL=false&serverTimezone=UTC", "root", "");
+        ps = conn.prepareStatement(
+            "SELECT j.job_title, j.description, j.location, j.hourly_rate, j.vacancies, j.posted_date, e.company_name, " +
+            "(SELECT GROUP_CONCAT(s.skill_name SEPARATOR ', ') FROM job_skills js " +
+            " JOIN skills s ON js.skill_id = s.skill_id WHERE js.job_id = j.job_id) AS skills " +
+            "FROM jobs j JOIN employers e ON j.employer_id = e.employer_id " +
+            "WHERE j.job_status = 'Available' AND (j.expiry_date IS NULL OR j.expiry_date >= CURDATE()) " +
+            "ORDER BY j.posted_date DESC, j.job_id DESC LIMIT 6");
+        rs = ps.executeQuery();
+        while (rs.next()) {
+            String desc = rs.getString("description");
+            if (desc != null && desc.length() > 100) desc = desc.substring(0, 100) + "...";
+            gigs.add(new String[]{
+                rs.getString("job_title"), rs.getString("company_name"), rs.getString("location"),
+                String.format("%.2f", rs.getDouble("hourly_rate")), rs.getString("vacancies"),
+                dateFmt.format(rs.getDate("posted_date")), desc, rs.getString("skills")});
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try { if (rs != null) rs.close(); } catch (Exception ignore) { }
+        try { if (ps != null) ps.close(); } catch (Exception ignore) { }
+        try { if (conn != null) conn.close(); } catch (Exception ignore) { }
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Siswa-Gigs | Campus Freelance & Job Portal</title>
-    
+
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
+
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -183,7 +226,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Employer Card -->
                 <div class="col-md-6 col-lg-5">
                     <div class="card feature-card h-100 p-4">
@@ -213,7 +256,7 @@
                 <span class="text-muted small">Showing latest posted opportunities</span>
             </div>
 
-            <!-- Clean display area waiting for dynamic gig cards injection -->
+            <% if (gigs.isEmpty()) { %>
             <div class="row g-4">
                 <div class="col-12">
                     <div class="card border-0 bg-light rounded-4 p-5 text-center">
@@ -225,6 +268,37 @@
                     </div>
                 </div>
             </div>
+            <% } else { %>
+            <div class="row g-4">
+                <% for (String[] g : gigs) { %>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card feature-card h-100 p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-bold mb-0"><%= esc(g[0]) %></h5>
+                            <span class="badge bg-success-subtle text-success rounded-pill">RM <%= g[3] %>/hr</span>
+                        </div>
+                        <div class="text-muted small mb-2"><i class="bi bi-building me-1"></i><%= esc(g[1]) %></div>
+                        <div class="text-muted small mb-3">
+                            <i class="bi bi-geo-alt me-1"></i><%= esc(g[2]) %>
+                            &bull; <%= g[4] %> vacancies
+                        </div>
+                        <p class="small text-secondary mb-3"><%= esc(g[6]) %></p>
+                        <% if (g[7] != null && !g[7].isEmpty()) { %>
+                        <div class="mb-3">
+                            <% for (String sk : g[7].split(", ")) { %>
+                                <span class="badge bg-primary-subtle text-primary rounded-pill me-1 mb-1"><%= esc(sk) %></span>
+                            <% } %>
+                        </div>
+                        <% } %>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Posted <%= g[5] %></span>
+                            <a href="student/login.jsp" class="btn btn-sm btn-primary rounded-pill px-3">Login to apply</a>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+            <% } %>
         </div>
     </section>
 
