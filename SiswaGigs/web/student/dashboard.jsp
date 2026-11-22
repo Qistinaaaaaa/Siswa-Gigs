@@ -138,6 +138,10 @@
             border-radius: 16px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
+        .clock-time {
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
@@ -194,6 +198,28 @@
                         </div>
                     </div>
 
+                    <!-- Date & Time (Malaysia) -->
+                    <div class="metric-card px-4 py-3 mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-3">
+                                <i class="bi bi-calendar3 fs-5"></i>
+                            </div>
+                            <div>
+                                <div class="text-muted small">Today</div>
+                                <div class="fw-bold" id="myDate">-</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="text-end">
+                                <div class="text-muted small">Malaysia Time (GMT+8)</div>
+                                <div class="fw-bold fs-5 clock-time" id="myTime">-</div>
+                            </div>
+                            <div class="bg-warning bg-opacity-10 text-warning p-2 rounded-3">
+                                <i class="bi bi-clock fs-5"></i>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Metric Cards Grid -->
                     <div class="row g-4">
                         <div class="col-md-4">
@@ -241,5 +267,26 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Live date & time (Malaysia, Asia/Kuala_Lumpur) -->
+    <script>
+        var dateFmt = new Intl.DateTimeFormat('en-GB', {
+            timeZone: 'Asia/Kuala_Lumpur',
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        });
+        var timeFmt = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Asia/Kuala_Lumpur',
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+        });
+
+        function updateClock() {
+            var now = new Date();
+            document.getElementById('myDate').textContent = dateFmt.format(now);
+            document.getElementById('myTime').textContent = timeFmt.format(now);
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
 </body>
 </html>

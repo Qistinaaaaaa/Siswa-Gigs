@@ -69,6 +69,7 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2">
                             <li><h6 class="dropdown-header text-muted small"><%= matricNumber != null ? matricNumber : "-" %></h6></li>
+                            <li><a class="dropdown-item small" href="profile.jsp"><i class="bi bi-person me-2"></i>Profile</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item small text-danger fw-semibold" href="../LogoutServlet"><i class="bi bi-box-arrow-right me-2"></i>Log Out</a></li>
                         </ul>

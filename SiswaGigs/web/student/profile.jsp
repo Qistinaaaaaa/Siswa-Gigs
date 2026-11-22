@@ -86,20 +86,20 @@
 
             <!-- User Dropdown Header -->
             <div class="dropdown">
-                <button class="btn btn-white bg-white border shadow-sm dropdown-toggle rounded-pill px-3 py-2 fw-semibold" type="button" data-bs-toggle="dropdown">
-                    <span class="bg-primary text-white rounded-circle px-2 py-1 me-1 font-monospace small">
+                <button class="btn btn-light border btn-sm rounded-pill px-3 py-2 dropdown-toggle fw-semibold d-inline-flex align-items-center gap-2 shadow-sm bg-white" type="button" data-bs-toggle="dropdown">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.8rem; min-width: 28px;">
                         <%= !fullName.isEmpty() ? fullName.substring(0, 1).toUpperCase() : "S" %>
-                    </span>
-                    <%= fullName.isEmpty() ? "Student" : fullName %>
+                    </div>
+                    <span><%= fullName.isEmpty() ? "Student" : fullName %></span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
-                    <li><a class="dropdown-item py-2 active" href="profile.jsp"><i class="bi bi-person me-2"></i> Profile</a></li>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2">
+                    <li><h6 class="dropdown-header text-muted small fw-bold"><%= matricNumber.isEmpty() ? "-" : matricNumber %></h6></li>
+                    <li><a class="dropdown-item small active" href="profile.jsp"><i class="bi bi-person me-2"></i>Profile</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item py-2 text-danger" href="../LogoutServlet"><i class="bi bi-box-arrow-right me-2"></i> Log Out</a></li>
+                    <li><a class="dropdown-Item small text-danger fw-semibold" href="../LogoutServlet"><i class="bi bi-box-arrow-right me-2"></i>Log Out</a></li>
                 </ul>
             </div>
         </div>
-
         <%
             String status = request.getParameter("status");
             String error = request.getParameter("error");
