@@ -3,14 +3,11 @@
 <%@ page import="com.siswagigs.dao.DBConnection" %>
 <%
     Integer userId = (Integer) session.getAttribute("userId");
-    String fullName = (String) session.getAttribute("fullName");
-    String matricNumber = (String) session.getAttribute("matricNumber");
+    String userName = (String) session.getAttribute("userName");
     if (userId == null) {
         response.sendRedirect("../login.jsp");
         return;
     }
-    if (fullName == null || fullName.isEmpty()) fullName = "Student";
-    if (matricNumber == null) matricNumber = "-";
 
     double totalPaid = 0.0;
     double totalPending = 0.0;
@@ -82,10 +79,9 @@
             background-color: #e2e8f0; color: #0f172a;
             display: inline-flex; align-items: center; justify-content: center;
         }
-        .user-name-full {
-            white-space: nowrap;
-            display: inline-block;
-            vertical-align: middle;
+        .user-name-truncate {
+            max-width: 170px; white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis; display: inline-block; vertical-align: middle;
         }
     </style>
 </head>
@@ -94,25 +90,24 @@
     <%@ include file="sidebar.jsp" %>
 
     <div class="main-content">
+          
         <!-- Top-Right User Profile & Logout Dropdown -->
-        <div class="d-flex justify-content-end align-items-center mb-3">
-            <div class="dropdown">
-                <button class="btn user-dropdown-btn dropdown-toggle d-flex align-items-center gap-2"
-                        type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="user-avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.8rem;">
-                        <%= fullName.substring(0, 1).toUpperCase() %>
-                    </span>
-                    <span class="text-uppercase user-name-full"><%= fullName %></span>
-                    <i class="bi bi-chevron-down small text-muted ms-1"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2" aria-labelledby="userMenuDropdown">
-                    <li><h6 class="dropdown-header text-muted small"><%= matricNumber %></h6></li>
-                    <li><a class="dropdown-item py-2 fw-medium" href="profile.jsp"><i class="bi bi-person-circle me-2 text-primary"></i> My Profile</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item py-2 fw-semibold text-danger" href="../LogoutServlet"><i class="bi bi-box-arrow-right me-2"></i> Log Out</a></li>
-                </ul>
+    <div class="d-flex justify-content-end align-items-center w-100 mb-3">
+    <div class="dropdown ms-auto">
+        <button class="btn btn-light border btn-sm rounded-pill px-3 py-2 dropdown-toggle fw-semibold d-inline-flex align-items-center gap-2 shadow-sm bg-white" type="button" data-bs-toggle="dropdown">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.8rem; min-width: 28px;">
+                <%= session.getAttribute("fullName") != null ? session.getAttribute("fullName").toString().substring(0, 1).toUpperCase() : "S" %>
             </div>
-        </div>
+            <span><%= session.getAttribute("fullName") != null ? session.getAttribute("fullName") : "Student" %></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2">
+            <li><h6 class="dropdown-header text-muted small"><%= session.getAttribute("matricNumber") != null ? session.getAttribute("matricNumber") : "-" %></h6></li>
+            <li><a class="dropdown-item small" href="profile.jsp"><i class="bi bi-person me-2"></i>Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item small text-danger fw-semibold" href="../LogoutServlet"><i class="bi bi-box-arrow-right me-2"></i>Log Out</a></li>
+        </ul>
+    </div>
+    </div>
 
         
         <div class="header-banner shadow-sm mb-4">
