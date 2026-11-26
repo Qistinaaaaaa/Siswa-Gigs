@@ -11,9 +11,7 @@
     }
 
     String fullName = (String) session.getAttribute("fullName");
-    String matricNumber = (String) session.getAttribute("matricNumber");
-    if (fullName == null || fullName.isEmpty()) fullName = "Student";
-    if (matricNumber == null) matricNumber = "-";
+    if (fullName == null) fullName = "User";
 
     double totalGross = (Double) request.getAttribute("totalGross");
     double totalFees = (Double) request.getAttribute("totalFees");
@@ -47,32 +45,31 @@
     <jsp:include page="sidebar.jsp" />
 
     <div class="main-content">
-        <!-- Top bar -->
+        
+        <!-- Top bar with Profile & Logout Dropdown -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <div class="text-muted small">Work & Payment Module</div>
-                <div class="fw-bold fs-5">Analytics & Reports</div>
+                <div class="text-muted small">Work &amp; Payment Module</div>
+                <div class="fw-bold fs-5">Analytics &amp; Reports</div>
             </div>
-            
-            <!-- Top-Right User Profile & Logout Dropdown -->
+
             <div class="dropdown">
-                <button class="btn btn-light border btn-sm rounded-pill px-3 py-2 dropdown-toggle fw-semibold d-inline-flex align-items-center gap-2 shadow-sm bg-white" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="user-avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.8rem;">
-                        <%= fullName.substring(0, 1).toUpperCase() %>
-                    </span>
-                    <span class="text-uppercase" style="font-size: 0.85rem;"><%= fullName %></span>
-                    <i class="bi bi-chevron-down small text-muted ms-1"></i>
+                <button class="btn btn-light border btn-sm rounded-pill px-3 py-2 dropdown-toggle fw-semibold d-inline-flex align-items-center gap-2 shadow-sm bg-white" type="button" data-bs-toggle="dropdown">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.8rem; min-width: 28px;">
+                        <%= session.getAttribute("fullName") != null ? session.getAttribute("fullName").toString().substring(0, 1).toUpperCase() : "S" %>
+                    </div>
+                    <span><%= session.getAttribute("fullName") != null ? session.getAttribute("fullName") : "Student" %></span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
-                    <li><h6 class="dropdown-header text-muted small"><%= matricNumber %></h6></li>
-                    <li><a class="dropdown-item py-2 fw-medium" href="profile.jsp"><i class="bi bi-person-circle me-2 text-primary"></i> My Profile</a></li>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2">
+                    <li><h6 class="dropdown-header text-muted small"><%= session.getAttribute("matricNumber") != null ? session.getAttribute("matricNumber") : "-" %></h6></li>
+                    <li><a class="dropdown-item small" href="profile.jsp"><i class="bi bi-person me-2"></i>Profile</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item py-2 fw-semibold text-danger" href="../LogoutServlet"><i class="bi bi-box-arrow-right me-2"></i> Log Out</a></li>
+                    <li><a class="dropdown-item small text-danger fw-semibold" href="../LogoutServlet"><i class="bi bi-box-arrow-right me-2"></i>Log Out</a></li>
                 </ul>
             </div>
         </div>
 
-        <!-- Hero -->
+        
         <div class="hero mb-4">
             <h1 class="fs-3 fw-bold mb-1">Work & Payment Dashboard Report</h1>
             <p class="text-light opacity-75 mb-0">Overview of total wages earned, peak hiring periods, and most demanded skill sets.</p>
